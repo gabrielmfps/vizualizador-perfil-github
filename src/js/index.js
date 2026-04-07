@@ -5,8 +5,8 @@ const inputSearch = document.getElementById('input-search');
 const btnSearch = document.getElementById('btn-search');
 const profileresults = document.querySelector('.profile-results');
 
-btnSearch.addEventListener('click', async () => {
-    const userName = inputSearch.value;
+function search() {
+    const userName = inputSearch.value.trim();
     if (!userName) {
         alert('Por favor, insira um nome de usuário do GitHub.');
         return;
@@ -14,13 +14,20 @@ btnSearch.addEventListener('click', async () => {
 
     profileresults.innerHTML = '<p>Carregando...</p>';
 
-    try {
-        const userData = await fetchGithubUser(userName);
-        const userRepos = await fetchGithubUserRepos(userName);
-        renderProfile(userData, userRepos, profileresults);
-    } catch (error) {
-        console.error('Erro ao buscar perfil do usuário:', error);
-        alert('Usuário não encontrado. Por favor, verifique o nome de usuário e tente novamente.');
-        profileresults.innerHTML = '';
-    }
+    fetchGithubUser(userName)
+        .then(async (userData) => {
+            const userRepos = await fetchGithubUserRepos(userName);
+            renderProfile(userData, userRepos, profileresults);
+        })
+        .catch((error) => {
+            console.error('Erro ao buscar perfil do usuário:', error);
+            alert('Usuário não encontrado. Por favor, verifique o nome de usuário e tente novamente.');
+            profileresults.innerHTML = '';
+        });
+}
+
+btnSearch.addEventListener('click', search);
+inputSearch.addEventListener('keyup', (e) => {
+    if (e.key === 'Enter') search();
 });
+
